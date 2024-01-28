@@ -1,4 +1,5 @@
 import express from "express";
+import { checkCreateUserData, checkUpdateUserData, checkUserId } from "../middlewares/userMiddleware.js";
 import {
   getAllContacts,
   getOneContact,
@@ -11,12 +12,12 @@ const contactsRouter = express.Router();
 
 contactsRouter.get("/", getAllContacts);
 
-contactsRouter.get("/:id", getOneContact);
+contactsRouter.get("/:id",checkUserId, getOneContact);
 
 contactsRouter.delete("/:id", deleteContact);
 
-contactsRouter.post("/", createContact);
+contactsRouter.post("/",checkCreateUserData, createContact);
 
-contactsRouter.put("/:id", updateContact);
+contactsRouter.put("/:id",checkUpdateUserData, updateContact);
 
 export default contactsRouter;
