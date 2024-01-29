@@ -50,11 +50,3 @@ export const updateContact = async(req, res) => {
     const updatedContact = await Contact.findByIdAndUpdate(id, req.body, {new: true})
     res.status(200).json(updatedContact)
 };
-
-
-export const updateContactStatus = async(req, res) => {
-    const {id} = req.params
-
-    const updatedStatus = await Contact.findByIdAndUpdate(id, req.body, {new: true})
-    res.status(200).json(updatedStatus)
-};
