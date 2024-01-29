@@ -1,29 +1,27 @@
-import { createContactValidator, updateContactValidator } from "../schemas/contactsValidator.js";
-import { User } from "../models/userModel.js";
-import { userRoles } from "../constants/userRoles.js";
+import { Contact } from "../models/contactModel.js";
 
 export const getAllContacts = async (req, res) => {
-    const users = await User.find()
-    res.status(200).json(users)
+    const contacts = await Contact.find()
+    res.status(200).json(contacts)
 };
 
 export const getOneContact = async(req, res) => {
     const {id} = req.params
-    const user = await User.findById(id)
+    const contact = await Contact.findById(id)
     
-    if(!user){
+    if(!contact){
         res.status(404).json({
             msg: "Not Found",
         })
         return
     }
-    res.status(200).json(user)
+    res.status(200).json(contact)
 };
 
 export const deleteContact = async(req, res) => {
     const {id} = req.params
-    const deletedContact = await User.findByIdAndDelete(id)
-    if(!deleteContact){
+    const deletedContact = await Contact.findByIdAndDelete(id)
+    if(!deletedContact){
         res.status(404).json({
             msg: "Not Found",
         })
@@ -34,50 +32,29 @@ export const deleteContact = async(req, res) => {
 
 export const createContact = async(req, res) => {
     
-    const newUser = await User.create(req.body)
-    newUser.password = undefined
+    const newContact = await Contact.create(req.body)
 
-    if(!userRoles){
+    if(!newContact){
         res.status(404).json({
             msg: "Not Found",
         })
         return
     }
-    res.status(201).json(newUser);
+    res.status(201).json(newContact);
 };
 
 
 export const updateContact = async(req, res) => {
     const {id} = req.params
-    // const {value, error} = updateContactValidator(req.body)
 
-    const updatedContact = await User.findByIdAndUpdate(id, req.body, {new: true})
-    
-
+    const updatedContact = await Contact.findByIdAndUpdate(id, req.body, {new: true})
     res.status(200).json(updatedContact)
 };
 
 
-// if(error){
-    //     res.status(400).json({
-    //         msg: error.details[0].message
-    //     })
+export const updateContactStatus = async(req, res) => {
+    const {id} = req.params
 
-    //     return
-    // }
-    
-    // const body = value
-    // const data = await editContact(id, body)
-    // if(data === 'body error'){
-    //     res.status(400).json({
-    //         msg: "Body must have at least one field"
-    //     })
-    //     return
-    // }
-
-    // if(data === 'id error'){
-    //     res.status(404).json({
-    //         msg: "Not Found"
-    //     })
-    //     return
-    // }
+    const updatedStatus = await Contact.findByIdAndUpdate(id, req.body, {new: true})
+    res.status(200).json(updatedStatus)
+};
