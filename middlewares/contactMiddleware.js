@@ -16,7 +16,7 @@ export const checkCreateContactData = catchAsync(async (req, res, next) =>{
 
     if(contactExists){
         res.status(409).json({
-            msg: "User with this email already exists"
+            msg: "Contact with this email already exists"
         })
         return
     }
@@ -32,17 +32,19 @@ export const checkContactId = catchAsync(async (req, res, next) => {
     const isIdValid = Types.ObjectId.isValid(id)
 
     if(!isIdValid){
-        res.status(404).json({
-            msg: "User not found"
+        res.status(400).json({
+            msg: "Invalid id"
         })
+        return
     }
 
     const contactExists = await Contact.exists({_id: id})
 
     if(!contactExists){
         res.status(404).json({
-            msg: "User not found"
+            msg: "Not found"
         })
+        return
     }
     next()
 })
@@ -53,6 +55,13 @@ export const checkUpdateContactData = catchAsync(async (req, res, next) =>{
     if(error){
         res.status(400).json({
             msg: error.details[0].message
+        })
+        return
+    }
+
+    if(Object.keys(value).length === 0){
+        res.status(400).json({
+            msg: "Body must have at least one field"
         })
         return
     }
@@ -70,6 +79,7 @@ export const checkUpdateStatusData = catchAsync(async (req, res, next) =>{
         })
         return
     }
+
 
     req.body = value
     next()
