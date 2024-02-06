@@ -8,18 +8,20 @@ import {
   updateContact,
 } from "../controllers/contactsControllers.js";
 
+import { checkAuth } from "../middlewares/authMiddleware.js";
+
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", getAllContacts);
+contactsRouter.get("/", checkAuth, getAllContacts);
 
-contactsRouter.get("/:id",checkContactId, getOneContact);
+contactsRouter.get("/:id", checkAuth, checkContactId, getOneContact);
 
-contactsRouter.delete("/:id",checkContactId, deleteContact);
+contactsRouter.delete("/:id",checkAuth, checkContactId, deleteContact);
 
-contactsRouter.post("/",checkCreateContactData, createContact);
+contactsRouter.post("/",checkAuth, checkCreateContactData, createContact);
 
-contactsRouter.put("/:id",checkContactId, checkUpdateContactData, updateContact);
+contactsRouter.put("/:id", checkAuth, checkContactId, checkUpdateContactData, updateContact);
 
-contactsRouter.patch("/:id/favorite",checkContactId, checkUpdateStatusData, updateContact)
+contactsRouter.patch("/:id/favorite", checkAuth, checkContactId, checkUpdateStatusData, updateContact)
 
 export default contactsRouter;

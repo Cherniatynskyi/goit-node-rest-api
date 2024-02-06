@@ -5,6 +5,8 @@ import { User } from "../models/userModel.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
+
+
 export const checkSignupData = catchAsync(async(req, res, next) =>{
     const {value, error} = signupUserValidator(req.body);
 
@@ -49,15 +51,40 @@ export const checkLoginData = catchAsync(async(req,res,next) =>{
         return
     }
 
-    const payload = {
-        id: value._id
+    const payload = {id: user._id}
+    const SECRET = process.env.SECRET_KEY
+    const token = jwt.sign(payload, SECRET, {expiresIn: '23h'})
+    
+    req.body = {...value, token, id: user._id}
+    console.log(req.body)
+    next()
+})
+
+
+export const checkAuth = catchAsync(async (req, res, next) =>{
+    const {authorization = ""} = req.headers;
+    const [bearer, token] = authorization.split(' ')
+    if(bearer !== 'Bearer'){
+        res.status(401).json({msg:'Unauthorized'})
+        return
     }
 
-    const secret_key = process.env.SECRET_KEY
+    try {
+        const SECRET = process.env.SECRET_KEY
+        const {id} = jwt.verify(token, SECRET)
+        const user = await User.findById(id)
 
-    const token = jwt.sign(payload, secret_key, {expiresIn: '23h'})
-    
-    req.body = {...value, token}
+        if(!user || !user.token || user.token !== token){
+            res.status(401).json({msg:'Invalid Email or Password'})
+        return
+        }
 
-    next()
+        req.user = user
+        next()
+        
+    } catch (error) {
+        res.status(401).json({msg:'Invalid Email or Password'})
+        return
+    }
+
 })

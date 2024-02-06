@@ -18,11 +18,7 @@ const userSchema = new Schema({
     token: {
       type: String,
       default: null,
-    },
-    owner: {
-        type: Schema.Types.ObjectId,
-        ref: 'user',
-      }
+    }
   },{
     versionKey: false
 })

@@ -1,7 +1,10 @@
 import { Contact } from "../models/contactModel.js";
 
 export const getAllContacts = async (req, res) => {
-    const contacts = await Contact.find()
+    const {_id: owner} = req.user
+    const {page=1, limit=10} = req.query
+    const skip = (page-1) * limit
+    const contacts = await Contact.find({owner}, "" ,{skip, limit}).populate("owner", "email")
     res.status(200).json(contacts)
 };
 
@@ -31,8 +34,8 @@ export const deleteContact = async(req, res) => {
 };
 
 export const createContact = async(req, res) => {
-    
-    const newContact = await Contact.create(req.body)
+    const {_id: owner} = req.user
+    const newContact = await Contact.create({...req.body, owner})
 
     if(!newContact){
         res.status(404).json({
