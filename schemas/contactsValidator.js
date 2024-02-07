@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+
 export const createContactValidator = (data) => Joi.object().options({abortEarly: false})
     .keys({
             name: Joi.string().min(2).max(30).required(),
@@ -20,3 +21,5 @@ export const updateStatusValidator = (data) => Joi.object().options({abortEarly:
 .keys({
         favorite: Joi.boolean().required()
 }).validate(data)
+
+

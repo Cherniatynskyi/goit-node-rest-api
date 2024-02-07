@@ -80,7 +80,7 @@ export const checkUpdateStatusData = catchAsync(async (req, res, next) =>{
         return
     }
 
-
     req.body = value
     next()
 })
+

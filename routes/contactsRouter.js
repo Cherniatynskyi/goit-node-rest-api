@@ -24,4 +24,5 @@ contactsRouter.put("/:id", checkAuth, checkContactId, checkUpdateContactData, up
 
 contactsRouter.patch("/:id/favorite", checkAuth, checkContactId, checkUpdateStatusData, updateContact)
 
+
 export default contactsRouter;

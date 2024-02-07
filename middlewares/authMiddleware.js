@@ -1,4 +1,4 @@
-import { signupUserValidator } from "../schemas/userValidator.js";
+import { signupUserValidator, updateSubscriptionValidator } from "../schemas/userValidator.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { User } from "../models/userModel.js";
 
@@ -11,14 +11,14 @@ export const checkSignupData = catchAsync(async(req, res, next) =>{
     const {value, error} = signupUserValidator(req.body);
 
     if(error){
-        res.status(400).json({msg: 'Invalid data'})
+        res.status(400).json({msg: error.details[0].message})
         return
     }  
 
     const userExists = await User.exists({email: value.email})
 
     if(userExists){
-        res.status(409).json({msg:'User already exists'})
+        res.status(409).json({msg:'Email in use'})
         return
     } 
 
@@ -33,7 +33,7 @@ export const checkLoginData = catchAsync(async(req,res,next) =>{
     const {value, error} = signupUserValidator(req.body);
 
     if(error){
-        res.status(400).json({msg: 'Invalid data'})
+        res.status(400).json({msg: error.details[0].message})
         return
     } 
 
@@ -55,7 +55,7 @@ export const checkLoginData = catchAsync(async(req,res,next) =>{
     const SECRET = process.env.SECRET_KEY
     const token = jwt.sign(payload, SECRET, {expiresIn: '23h'})
     
-    req.body = {...value, token, id: user._id}
+    req.body = {...value, token, user}
     console.log(req.body)
     next()
 })
@@ -65,7 +65,7 @@ export const checkAuth = catchAsync(async (req, res, next) =>{
     const {authorization = ""} = req.headers;
     const [bearer, token] = authorization.split(' ')
     if(bearer !== 'Bearer'){
-        res.status(401).json({msg:'Unauthorized'})
+        res.status(401).json({msg:'Not authorized'})
         return
     }
 
@@ -75,7 +75,7 @@ export const checkAuth = catchAsync(async (req, res, next) =>{
         const user = await User.findById(id)
 
         if(!user || !user.token || user.token !== token){
-            res.status(401).json({msg:'Invalid Email or Password'})
+            res.status(401).json({msg:'Not authorized'})
         return
         }
 
@@ -83,8 +83,23 @@ export const checkAuth = catchAsync(async (req, res, next) =>{
         next()
         
     } catch (error) {
-        res.status(401).json({msg:'Invalid Email or Password'})
+        res.status(401).json({msg:'Not authorized'})
         return
     }
 
+})
+
+
+export const checkUpdateUserData = catchAsync(async (req, res, next) =>{
+    const {value, error} = updateSubscriptionValidator(req.body)
+
+    if(error){
+        res.status(400).json({
+            msg: error.details[0].message
+        })
+        return
+    }
+
+    req.body = value
+    next()
 })

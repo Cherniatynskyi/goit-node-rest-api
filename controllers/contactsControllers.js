@@ -2,9 +2,11 @@ import { Contact } from "../models/contactModel.js";
 
 export const getAllContacts = async (req, res) => {
     const {_id: owner} = req.user
-    const {page=1, limit=10} = req.query
+    const {page=1, limit=10, favorite} = req.query
     const skip = (page-1) * limit
-    const contacts = await Contact.find({owner}, "" ,{skip, limit}).populate("owner", "email")
+    const findQuery = favorite ? {owner, favorite:favorite} : {owner}
+
+    const contacts = await Contact.find(findQuery, "" ,{skip, limit}).populate("owner", "email")
     res.status(200).json(contacts)
 };
 
@@ -53,3 +55,5 @@ export const updateContact = async(req, res) => {
     const updatedContact = await Contact.findByIdAndUpdate(id, req.body, {new: true})
     res.status(200).json(updatedContact)
 };
+
+
