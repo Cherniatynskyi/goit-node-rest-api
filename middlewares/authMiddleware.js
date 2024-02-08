@@ -11,14 +11,14 @@ export const checkSignupData = catchAsync(async(req, res, next) =>{
     const {value, error} = signupUserValidator(req.body);
 
     if(error){
-        res.status(400).json({msg: error.details[0].message})
+        res.status(400).json({message: error.details[0].message})
         return
     }  
 
     const userExists = await User.exists({email: value.email})
 
     if(userExists){
-        res.status(409).json({msg:'Email in use'})
+        res.status(409).json({message:'Email in use'})
         return
     } 
 
@@ -33,21 +33,21 @@ export const checkLoginData = catchAsync(async(req,res,next) =>{
     const {value, error} = signupUserValidator(req.body);
 
     if(error){
-        res.status(400).json({msg: error.details[0].message})
+        res.status(400).json({message: error.details[0].message})
         return
     } 
 
     const user = await User.findOne({email: value.email})
 
     if(!user){
-        res.status(401).json({msg:'Email or password invalid'})
+        res.status(401).json({message:'Email or password invalid'})
         return
     } 
     
     const passwordIsValid = await bcrypt.compare(value.password, user.password)
 
     if(!passwordIsValid){
-        res.status(401).json({msg:'Email or password invalid'})
+        res.status(401).json({message:'Email or password invalid'})
         return
     }
 
@@ -56,7 +56,6 @@ export const checkLoginData = catchAsync(async(req,res,next) =>{
     const token = jwt.sign(payload, SECRET, {expiresIn: '23h'})
     
     req.body = {...value, token, user}
-    console.log(req.body)
     next()
 })
 
@@ -65,7 +64,7 @@ export const checkAuth = catchAsync(async (req, res, next) =>{
     const {authorization = ""} = req.headers;
     const [bearer, token] = authorization.split(' ')
     if(bearer !== 'Bearer'){
-        res.status(401).json({msg:'Not authorized'})
+        res.status(401).json({message:'Not authorized'})
         return
     }
 
@@ -75,7 +74,7 @@ export const checkAuth = catchAsync(async (req, res, next) =>{
         const user = await User.findById(id)
 
         if(!user || !user.token || user.token !== token){
-            res.status(401).json({msg:'Not authorized'})
+            res.status(401).json({message:'Not authorized'})
         return
         }
 
@@ -83,7 +82,7 @@ export const checkAuth = catchAsync(async (req, res, next) =>{
         next()
         
     } catch (error) {
-        res.status(401).json({msg:'Not authorized'})
+        res.status(401).json({message:'Not authorized'})
         return
     }
 
@@ -95,7 +94,7 @@ export const checkUpdateUserData = catchAsync(async (req, res, next) =>{
 
     if(error){
         res.status(400).json({
-            msg: error.details[0].message
+            message: error.details[0].message
         })
         return
     }

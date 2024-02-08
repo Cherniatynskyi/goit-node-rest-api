@@ -7,7 +7,7 @@ export const checkCreateContactData = catchAsync(async (req, res, next) =>{
     const {value, error} = createContactValidator(req.body)
     if(error){
         res.status(400).json({
-            msg: error.details[0].message
+            message: error.details[0].message
         })
         return
     }
@@ -16,7 +16,7 @@ export const checkCreateContactData = catchAsync(async (req, res, next) =>{
 
     if(contactExists){
         res.status(409).json({
-            msg: "Contact with this email already exists"
+            message: "Contact with this email already exists"
         })
         return
     }
@@ -28,12 +28,22 @@ export const checkCreateContactData = catchAsync(async (req, res, next) =>{
 
 export const checkContactId = catchAsync(async (req, res, next) => {
     const {id} = req.params
+    const {_id: owner} = req.user
+
+    const ownerCheck = await Contact.find({_id: id, owner})
+
+    if(ownerCheck.length === 0){
+        res.status(404).json({
+            message: "Not Found"
+        })
+        return
+    }
 
     const isIdValid = Types.ObjectId.isValid(id)
 
     if(!isIdValid){
         res.status(400).json({
-            msg: "Invalid id"
+            message: "Invalid id"
         })
         return
     }
@@ -42,7 +52,7 @@ export const checkContactId = catchAsync(async (req, res, next) => {
 
     if(!contactExists){
         res.status(404).json({
-            msg: "Not found"
+            message: "Not found"
         })
         return
     }
@@ -54,14 +64,14 @@ export const checkUpdateContactData = catchAsync(async (req, res, next) =>{
 
     if(error){
         res.status(400).json({
-            msg: error.details[0].message
+            message: error.details[0].message
         })
         return
     }
 
     if(Object.keys(value).length === 0){
         res.status(400).json({
-            msg: "Body must have at least one field"
+            message: "Body must have at least one field"
         })
         return
     }
@@ -75,7 +85,7 @@ export const checkUpdateStatusData = catchAsync(async (req, res, next) =>{
 
     if(error){
         res.status(400).json({
-            msg: error.details[0].message
+            message: error.details[0].message
         })
         return
     }
