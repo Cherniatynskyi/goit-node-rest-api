@@ -28,16 +28,6 @@ export const checkCreateContactData = catchAsync(async (req, res, next) =>{
 
 export const checkContactId = catchAsync(async (req, res, next) => {
     const {id} = req.params
-    const {_id: owner} = req.user
-
-    const ownerCheck = await Contact.find({_id: id, owner})
-
-    if(ownerCheck.length === 0){
-        res.status(404).json({
-            message: "Not Found"
-        })
-        return
-    }
 
     const isIdValid = Types.ObjectId.isValid(id)
 
