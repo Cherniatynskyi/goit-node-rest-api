@@ -5,6 +5,7 @@ import { Contact } from "../models/contactModel.js";
 
 export const checkCreateContactData = catchAsync(async (req, res, next) =>{
     const {value, error} = createContactValidator(req.body)
+    const {_id: owner} = req.user
     if(error){
         res.status(400).json({
             message: error.details[0].message
@@ -12,7 +13,7 @@ export const checkCreateContactData = catchAsync(async (req, res, next) =>{
         return
     }
 
-    const contactExists = await Contact.exists({email: value.email})
+    const contactExists = await Contact.exists({email: value.email, owner})
 
     if(contactExists){
         res.status(409).json({
@@ -28,6 +29,7 @@ export const checkCreateContactData = catchAsync(async (req, res, next) =>{
 
 export const checkContactId = catchAsync(async (req, res, next) => {
     const {id} = req.params
+
 
     const isIdValid = Types.ObjectId.isValid(id)
 
