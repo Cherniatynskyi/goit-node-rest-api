@@ -35,3 +35,18 @@ export const updateUser = catchAsync(async(req, res) =>{
     res.status(200).json({email, subscription})
 })
 
+export const updateAvatar = catchAsync(async(req, res) =>{
+    const {body, file, user} = req
+    console.log(file)
+    if(file){
+        user.avatarURL = file.path.replace('public', '')
+        console.log(file.path.replace('public', ''))
+    }
+    Object.keys(body).forEach((key) => {
+        user[key] = body[key]
+    })
+    user.save()
+    res.status(200).json({
+        avatarURL: user.avatarURL
+    })
+})
