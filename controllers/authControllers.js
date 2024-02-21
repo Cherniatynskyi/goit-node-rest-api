@@ -1,5 +1,7 @@
 import { catchAsync } from "../utils/catchAsync.js";
 import { User } from "../models/userModel.js";
+import { updateMe } from "../services/userService.js";
+import { restorePasswordService } from "../services/userService.js";
 
 export const signup = catchAsync(async(req, res) => {
     const newUser = await User.create(req.body)
@@ -35,18 +37,39 @@ export const updateUser = catchAsync(async(req, res) =>{
     res.status(200).json({email, subscription})
 })
 
-export const updateAvatar = catchAsync(async(req, res) =>{
+export const updateAvatar = catchAsync(async(req, res) => {
     const {body, file, user} = req
-    console.log(file)
-    if(file){
-        user.avatarURL = file.path.replace('public', '')
-        console.log(file.path.replace('public', ''))
-    }
-    Object.keys(body).forEach((key) => {
-        user[key] = body[key]
-    })
-    user.save()
+    const updatedUser = await updateMe(body, user, file)
     res.status(200).json({
-        avatarURL: user.avatarURL
+       avatarURL: updatedUser.avatarURL
     })
+})
+
+
+export const forgotPassword = catchAsync(async (req, res) =>{
+    const {email} = req.body
+    console.log(email)
+    const user = await User.findOne({email})
+    if(!user) return res.status(200).json({message: 'Password resent sent by email'})
+
+    const otp = user.createPasswordResetToken()
+
+    await user.save()
+
+    console.log(otp)
+
+    user.passwordResetToken = undefined
+    user.passwordResetTokenExp = undefined
+
+    res.status(200).json({message: 'Password resent sent by email'})
+})
+
+
+export const restorePassword = catchAsync(async (req, res) =>{
+    await restorePasswordService(req.params.otp, req.body.password)
+
+    res.status(200).json({
+        message: 'Password has been restored',
+      });
+
 })

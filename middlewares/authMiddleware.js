@@ -1,12 +1,12 @@
 import { signupUserValidator, updateSubscriptionValidator } from "../schemas/userValidator.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { User } from "../models/userModel.js";
+import { ImageService } from "../services/imageService.js";
 
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import multer from "multer";
-import {v4} from 'uuid'
-import path from 'path'
+
+
 
 
 
@@ -106,31 +106,6 @@ export const checkUpdateUserData = catchAsync(async (req, res, next) =>{
     next()
 })
 
-const multerStorage = multer.diskStorage({
-    destination: (req, file, cbk) => {
-        cbk(null, path.join('public', 'avatars'))
-    },
-    filename: (req, file, cbk) => {
-        const extension = file.mimetype.split('/')[1];
-        cbk(null, `${req.user.id}-${v4()}.${extension}`)
-    }
-})
 
-const multerFilter = (req, file, cbk) =>{
-    if(file.mimetype.startsWith('image/')){
-        cbk(null, true)
-    }
-    else{
-        cbk(res.status(400).json({
-            message: "Please upload images only"
-        }), false)
-    }
-}
-export const uploadAvatar = multer({
-    storage: multerStorage,
-    fileFilter: multerFilter,
-    limits:{
-        fileSize: 2 * 1024 * 1024
-    }
-}).single('avatarURL')
 
+export const uploadAvatar = ImageService.initUploadImageMiddleware('avatarURL')
