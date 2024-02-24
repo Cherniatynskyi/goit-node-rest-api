@@ -1,9 +1,12 @@
 import { signupUserValidator, updateSubscriptionValidator } from "../schemas/userValidator.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { User } from "../models/userModel.js";
+import { ImageService } from "../services/imageService.js";
 
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+
+
 
 
 
@@ -102,3 +105,7 @@ export const checkUpdateUserData = catchAsync(async (req, res, next) =>{
     req.body = value
     next()
 })
+
+
+
+export const uploadAvatar = ImageService.initUploadImageMiddleware('avatarURL')
