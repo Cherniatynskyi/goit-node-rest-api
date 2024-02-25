@@ -2,17 +2,59 @@ import { catchAsync } from "../utils/catchAsync.js";
 import { User } from "../models/userModel.js";
 import { updateMe } from "../services/userService.js";
 import { restorePasswordService } from "../services/userService.js";
+import { sendEmail } from "../services/emailService.js";
 
 export const signup = catchAsync(async(req, res) => {
     const newUser = await User.create(req.body)
-    const {email, subscription} = newUser
+    const {email, subscription, verificationCode} = newUser
+
+    const verifyEmail = {
+        to: email, subject: "Verify email",
+        html: `<a traget="_blank" href="${process.env.BASE_URL}/api/users/verify/${verificationCode}">Verify</a>`
+    }
+
+    await sendEmail(verifyEmail)
 
     res.status(201).json({user: {email, subscription}})
 })
 
+export const verifyEmail  = catchAsync(async(req, res) =>{
+    const {verificationCode} = req.params
+    const user = await User.findOne({verificationCode})
+
+    if(!user){
+        res.status(404).json({message: "User not found"})
+        return
+    }
+    await User.findByIdAndUpdate(user._id, {verify: true, verificationCode: ''})
+
+    res.status(200).json({message: "Verification successful"})
+})
+
+
+export const resendVerifyEmail  = catchAsync(async(req, res) =>{
+    const {email} = req.body
+    const {verificationCode, _id} = req.user
+
+    const verifyEmail = {
+        to: email, subject: "Verify email",
+        html: `<a traget="_blank" href="${process.env.BASE_URL}/api/users/verify/${verificationCode}">Verify</a>`
+    }
+
+    await sendEmail(verifyEmail)
+
+    res.status(200).json({message: "Verification email sent"})
+})
+
+
 export const login = catchAsync(async(req, res) => {
     const {token, user} = req.body
     const {_id, email, subscription} = user
+
+    if(!user.verify){
+        res.status(401).json({message: "Not authorized"})
+        return 
+    }
     await User.findByIdAndUpdate(_id, {token})
     res.status(200).json({token, user:{email, subscription}})
 })
@@ -39,6 +81,11 @@ export const updateUser = catchAsync(async(req, res) =>{
 
 export const updateAvatar = catchAsync(async(req, res) => {
     const {body, file, user} = req
+    if(!file){
+        res.status(400).json({
+            message: "Bad request"
+         })
+    }
     const updatedUser = await updateMe(body, user, file)
     res.status(200).json({
        avatarURL: updatedUser.avatarURL

@@ -1,12 +1,16 @@
 import express from "express";
-import { checkAuth, checkLoginData, checkSignupData, checkUpdateUserData, uploadAvatar} from "../middlewares/authMiddleware.js";
-import { forgotPassword, getCurrent, login, logout, restorePassword, signup, updateAvatar, updateUser } from "../controllers/authControllers.js";
+import { checkAuth, checkLoginData, checkSignupData, checkUpdateUserData, checkVerifyEmail, uploadAvatar} from "../middlewares/authMiddleware.js";
+import { forgotPassword, getCurrent, login, logout, resendVerifyEmail, restorePassword, signup, updateAvatar, updateUser, verifyEmail } from "../controllers/authControllers.js";
 
 const authRouter = express.Router()
 
 export default authRouter;
 
 authRouter.post( '/register', checkSignupData, signup);
+
+authRouter.get('/verify/:verificationCode', verifyEmail)
+
+authRouter.get('/verify', checkVerifyEmail, resendVerifyEmail)
 
 authRouter.post('/login', checkLoginData, login);
 

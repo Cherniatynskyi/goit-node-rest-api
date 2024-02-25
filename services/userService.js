@@ -3,7 +3,6 @@ import { User } from "../models/userModel.js";
 import { HttpError } from "../utils/httpError.js";
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
-import fs from 'fs'
 
 
 export const updateMe = async (userData, user, file) => {
@@ -45,4 +44,6 @@ export const updateMe = async (userData, user, file) => {
     await user.save();
   };
   
-  
+
+
+

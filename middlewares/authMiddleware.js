@@ -1,10 +1,11 @@
-import { signupUserValidator, updateSubscriptionValidator } from "../schemas/userValidator.js";
+import { signupUserValidator, updateSubscriptionValidator, verifyEmailValidator } from "../schemas/userValidator.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { User } from "../models/userModel.js";
 import { ImageService } from "../services/imageService.js";
 
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { v4 } from "uuid";
 
 
 
@@ -26,11 +27,40 @@ export const checkSignupData = catchAsync(async(req, res, next) =>{
     } 
 
     const hashedPass = await bcrypt.hash(value.password, 10)
-    req.body = {...value, password: hashedPass}
+    const verificationCode = v4()
 
+    req.body = {...value, password: hashedPass, verificationCode}
+
+    
     next()
 })
 
+export const checkVerifyEmail = catchAsync(async(req, res, next) =>{
+    if(Object.keys(req.body).length === 0){
+        res.status(400).json({message:"missing required field email"})
+        return
+    }
+    const {value, error} = verifyEmailValidator(req.body);
+
+    if(error){
+        res.status(400).json({message: error.details[0].message})
+        return
+    }  
+    const user = await User.findOne({email: value.email})
+
+    if(!user){
+        res.status(404).json({message:'Not Found'})
+        return
+    }
+
+    if(user.verify){
+        res.status(400).json({message:'Verification has already been passed'})
+        return
+    }
+    req.user = user
+    req.body = value
+    next()
+})
 
 export const checkLoginData = catchAsync(async(req,res,next) =>{
     const {value, error} = signupUserValidator(req.body);

@@ -22,7 +22,15 @@ const userSchema = new Schema({
     },
     avatarURL: String,
     passwordResetToken: String,
-    passwordResetTokenExp: Date
+    passwordResetTokenExp: Date,
+    verify: {
+      type: Boolean,
+      default: false
+    },
+    verificationCode: {
+      type: String,
+      required: [true, 'Verify token is required'],
+    }
   },{
     versionKey: false
 })

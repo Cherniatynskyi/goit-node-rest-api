@@ -12,3 +12,9 @@ export const updateSubscriptionValidator = (data) => Joi.object().options({abort
     .keys({
             subscription: Joi.string().valid(...Object.values(userSubscriptions)).required()
     }).validate(data)
+
+
+export const verifyEmailValidator = (data) => Joi.object().options({abortEarly: false})
+.keys({
+        email: Joi.string().email()
+}).validate(data)
