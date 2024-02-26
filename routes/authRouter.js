@@ -10,7 +10,7 @@ authRouter.post( '/register', checkSignupData, signup);
 
 authRouter.get('/verify/:verificationCode', verifyEmail)
 
-authRouter.get('/verify', checkVerifyEmail, resendVerifyEmail)
+authRouter.post('/verify', checkVerifyEmail, resendVerifyEmail)
 
 authRouter.post('/login', checkLoginData, login);
 
